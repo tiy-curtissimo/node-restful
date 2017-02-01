@@ -1,0 +1,84 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Resting Customer Information
+host: localhost:10010
+basePath: /
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /api/my/applications/v1:
+    x-swagger-router-controller: applications
+    get:
+      description: Returns a list of applications for the customer
+      operationId: list
+      parameters:
+        - name: x-customer-token
+          in: header
+          description: The session token for the customer
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/ApplicationSummaryListResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+
+
+definitions:
+  ApplicationSummary:
+    required:
+      - id
+      - applicationType
+      - status
+      - accountUri
+      - startedOn
+    properties:
+        applicationType:
+          type: string
+          description: The human-readable type of application.
+        id:
+          type: number
+          description: The identifier for the application.
+        startedOn:
+          type: string
+          format: date
+          description: The date that the customer started the application.
+        status:
+          type: string
+          description: The status of the application
+          enum:
+            - incomplete
+            - submitted
+            - under review
+            - approved
+            - not approved
+        accountUri:
+          type: string
+          description: The URI of the account if status is "approved".
+  ApplicationSummaryListResponse:
+    required:
+      - applications
+    properties:
+      applications:
+        type: array
+        description: A list of customer applications
+        items:
+          $ref: "#/definitions/ApplicationSummary"
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
